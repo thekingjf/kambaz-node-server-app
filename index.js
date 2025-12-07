@@ -2,9 +2,9 @@ import express from 'express';
 import Hello from "./Hello.js"
 import Lab5 from "./Lab5/index.js";
 import cors from "cors";
-import db from "../kambaz-next-js/app/(Kambaz)/Database/index.js";
-import UserRoutes from "../kambaz-next-js/app/(Kambaz)/Users/routes.js";
-import CourseRoutes from "../kambaz-next-js/app/(Kambaz)/Courses/routes.js";
+import db from "./Kambaz/Database/index.js";
+import UserRoutes from "./Kambaz/Users/routes.js";
+import CourseRoutes from "./Kambaz/Courses/routes.js";
 import "dotenv/config";
 import session from "express-session";
 
