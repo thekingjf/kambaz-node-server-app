@@ -6,7 +6,6 @@ const choiceSchema = mongoose.Schema(
     text : String,
     isCorrect : Boolean
   },
-  { _id : false }
 );
 
 const questionSchema = new mongoose.Schema(
@@ -28,7 +27,7 @@ const questionSchema = new mongoose.Schema(
     correctBoolean : Boolean,
     correctAnswer : [String],
   },
-  {collation : "questions"}
+  {collection : "questions"}
 );
 
 export default questionSchema;

@@ -3,13 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 
 export default function QuestionDao() {
     const findQuestionsForQuiz = (quizId) => {
-        QuestionModel.find(quizId)
+        return QuestionModel.find({ quizId });
     };
 
     const createQuestionForQuiz = (quizId) => QuestionModel.create({
             _id : uuidv4(),
             quizId,
-            type : "MULTIPLE CHOICE",
+            type : "MULTIPLE_CHOICE",
             title : "New Question",
             points: 1,
             questionText: "",
