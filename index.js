@@ -6,6 +6,7 @@ import db from "./Kambaz/Database/index.js";
 import UserRoutes from "./Kambaz/Users/routes.js";
 import CourseRoutes from "./Kambaz/Courses/routes.js";
 import ModulesRoutes from "./Kambaz/Modules/routes.js";
+import QuizRoutes from "./Kambaz/Quiz/routes.js";
 import "dotenv/config";
 import mongoose from "mongoose";
 import session from "express-session";
@@ -46,9 +47,10 @@ app.use(session(sessionOptions));
 
 Hello(app);
 Lab5(app);
-UserRoutes(app, db);
+UserRoutes(app);
 CourseRoutes(app, db);
 ModulesRoutes(app, db);
+QuizRoutes(app)
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
