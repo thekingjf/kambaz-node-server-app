@@ -8,6 +8,7 @@ import CourseRoutes from "./Kambaz/Courses/routes.js";
 import ModulesRoutes from "./Kambaz/Modules/routes.js";
 import QuizRoutes from "./Kambaz/Quiz/routes.js";
 import QuestionRoutes from "./Kambaz/Questions/routes.js";
+import QuizAttemptRoutes from "./Kambaz/QuizAttempt/routes.js";
 import "dotenv/config";
 import mongoose from "mongoose";
 import session from "express-session";
@@ -15,6 +16,9 @@ import session from "express-session";
 const CONNECTION_STRING =
   process.env.DATABASE_CONNECTION_STRING ||
   "mongodb://127.0.0.1:27017/kambaz";
+
+console.log("DATABASE_CONNECTION_STRING env:", process.env.DATABASE_CONNECTION_STRING);
+console.log("Using Mongo CONNECTION_STRING:", CONNECTION_STRING);
 
 mongoose.connect(CONNECTION_STRING);
 
@@ -53,6 +57,7 @@ CourseRoutes(app, db);
 ModulesRoutes(app, db);
 QuizRoutes(app);
 QuestionRoutes(app);
+QuizAttemptRoutes(app)
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
