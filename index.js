@@ -17,9 +17,6 @@ const CONNECTION_STRING =
   process.env.DATABASE_CONNECTION_STRING ||
   "mongodb://127.0.0.1:27017/kambaz";
 
-console.log("DATABASE_CONNECTION_STRING env:", process.env.DATABASE_CONNECTION_STRING);
-console.log("Using Mongo CONNECTION_STRING:", CONNECTION_STRING);
-
 mongoose.connect(CONNECTION_STRING);
 
 const app = express();

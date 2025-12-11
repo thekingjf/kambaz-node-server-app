@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-const answerSchema = new mongoose.Schema(
-    {
+const answerSchema = new mongoose.Schema({
         questionId: String,
         choiceId: String,
         booleanAnswer: Boolean,
@@ -11,8 +10,7 @@ const answerSchema = new mongoose.Schema(
     { _id: false }
 );
 
-const quizAttemptSchema = new mongoose.Schema(
-    {
+const quizAttemptSchema = new mongoose.Schema({
       quizId: String,
       courseId: String,
       studentId: String,
@@ -27,5 +25,7 @@ const quizAttemptSchema = new mongoose.Schema(
   
       answers: [answerSchema],
     },
-    { collection: "quiz_attempts" }
+    { collection: "quizAttempts" }
 );
+
+export default quizAttemptSchema;
