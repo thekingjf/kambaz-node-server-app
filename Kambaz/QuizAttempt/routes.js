@@ -2,6 +2,13 @@ import QuizAttemptDao from "./dao.js";
 import QuizDao from "../Quiz/dao.js";
 import QuestionDao from "../Questions/dao.js";
 
+const requireStudent = (req, res, next) => {
+    const user = req.session?.currentUser;
+    if (!user) return res.sendStatus(401);
+    if (user.role !== "STUDENT") return res.sendStatus(403);
+    next();
+};
+
 export default function QuizAttemptRoutes(app) {
     const attemptsDao = QuizAttemptDao();
     const quizDao = QuizDao();
@@ -48,38 +55,72 @@ export default function QuizAttemptRoutes(app) {
         return {score, maxScore, gradedAnswers};
     };
 
+    const parseDate = (value) => (value ? new Date(value) : null);
+    
+    const enforceQuizAccess = (quiz, now, res) => {
+        if (!quiz.published) return res.status(res, 403).json({ message: "Quiz is not published."});
+        
+        const availableFrom = parseDate(quiz.availableDate);
+        const availableUntil = parseDate(quiz.untilDate);
+        const due = parseDate(quiz.dueDate);
+        
+        if (availableFrom && now < availableFrom) return res.status(res, 403).json({ message: "Quiz is not available yet."});
+        if (availableUntil && now > availableUntil) return res.status(res, 403).json({ message: "Quiz is closed."});
+        
+        if (due && now > due) return res.status(res, 403).json({ message: "Quiz is past due."});
+        
+        return null;
+    };
+
+    
+    const enforceAttemptLimits = (quiz, previousAttempts, res) => {
+        const attemptNumber = previousAttempts.length + 1;
+        
+        if (!quiz.multipleAttempts && previousAttempts.length >= 1) {
+            res.status(res, 400).json({ message: "No attempts remaining."});
+            return null;
+        }
+        
+        if (quiz.multipleAttempts) {
+            const max = Number(quiz.maxAttempts);
+            const limit = Number.isFinite(max) && max > 0 ? max : 1;
+            if (attemptNumber > limit) {
+                res.status(res, 400).json({ message: "No attempts remaining."});
+                return null;
+            }
+        }
+        
+        return attemptNumber;
+    };
+
+    const getStudentIdFromSession = (req) => req.session?.currentUser?._id || null;
+
     const submitAttempt = async (req, res) => {
         const quizId = req.params.qid;
-        const studentId = req.session?.currentUser?._id;
+        const studentId = getStudentIdFromSession(req);
 
-        if (!studentId) {
-            return res.sendStatus(401);
-        }
+        if (!studentId) return res.sendStatus(401);
 
         const quiz = await quizDao.findQuizById(quizId);
-        if (!quiz) {
-            return res.sendStatus(404);
-        }
+        if (!quiz) return res.sendStatus(404);
+
+        const now = new Date();
+
+        if (enforceQuizAccess(quiz, now, res)) return;
 
         const previousAttempts = await attemptsDao.findAttemptsForStudentQuiz(quizId, studentId);
-        const attemptNumber = previousAttempts.length + 1;
-
-        if (quiz.multipleAttempts && attemptNumber > quiz.maxAttempts) {
-            return res.status(400).json({ message: "Maximum attempts reached" });
-        }
+        const attemptNumber = enforceAttemptLimits(quiz, previousAttempts, res);
+        if (!attemptNumber) return;
 
         const answersByQuestionId = req.body.answers || {};
-        const { score, maxScore, gradedAnswers } = await gradeAttempt(
-            quizId,
-            answersByQuestionId
-        );
+        const { score, maxScore, gradedAnswers } = await gradeAttempt(quizId, answersByQuestionId);
 
         const newAttempt = await attemptsDao.createAttempt({
             quizId,
             courseId: quiz.courseId,
             studentId,
             attemptNumber,
-            submittedAt: new Date(),
+            submittedAt: now,
             score,
             maxScore,
             answers: gradedAnswers,
@@ -103,7 +144,7 @@ export default function QuizAttemptRoutes(app) {
         res.json(lastAttempt);
     };
 
-    app.post("/api/quizzes/:qid/attempts", submitAttempt)
-    app.get("/api/quizzes/:qid/attempts/me/last", recentAttempt)
+    app.post("/api/quizzes/:qid/attempts", requireStudent, submitAttempt)
+    app.get("/api/quizzes/:qid/attempts/last", requireStudent, recentAttempt)
 
 }
