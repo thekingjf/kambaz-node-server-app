@@ -2,13 +2,6 @@ import QuizAttemptDao from "./dao.js";
 import QuizDao from "../Quiz/dao.js";
 import QuestionDao from "../Questions/dao.js";
 
-const requireStudent = (req, res, next) => {
-    const user = req.session?.currentUser;
-    if (!user) return res.sendStatus(401);
-    if (user.role !== "STUDENT") return res.sendStatus(403);
-    next();
-};
-
 export default function QuizAttemptRoutes(app) {
     const attemptsDao = QuizAttemptDao();
     const quizDao = QuizDao();
@@ -144,7 +137,7 @@ export default function QuizAttemptRoutes(app) {
         res.json(lastAttempt);
     };
 
-    app.post("/api/quizzes/:qid/attempts", requireStudent, submitAttempt)
-    app.get("/api/quizzes/:qid/attempts/last", requireStudent, recentAttempt)
+    app.post("/api/quizzes/:qid/attempts", submitAttempt)
+    app.get("/api/quizzes/:qid/attempts/last", recentAttempt)
 
 }

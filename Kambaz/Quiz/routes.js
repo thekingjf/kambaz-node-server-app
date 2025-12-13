@@ -1,18 +1,5 @@
 import QuizDao from "./dao.js";
 
-const requireAuth = (req, res, next) => {
-    const user = req.session?.currentUser;
-    if (!user) return res.sendStatus(401);
-    next();
-}
-
-const requireFaculty = (req, res, next) => {
-    const user = req.session?.currentUser;
-    if (!user) return res.sendStatus(401);
-    if (user.role !== "FACULTY") return res.sendStatus(403);
-    next();
-}
-
 export default function QuizRoutes(app) {
     const dao = QuizDao();
 
@@ -52,19 +39,19 @@ export default function QuizRoutes(app) {
     }
 
     //List quizzes for course
-    app.get("/api/courses/:cid/quizzes", requireAuth, listQuiz);
+    app.get("/api/courses/:cid/quizzes", listQuiz);
 
     //Create quiz
-    app.post("/api/courses/:cid/quizzes", requireFaculty, createQuiz);
+    app.post("/api/courses/:cid/quizzes", createQuiz);
 
     //Delete quiz
-    app.delete("/api/quizzes/:qid", requireFaculty, deleteQuiz);
+    app.delete("/api/quizzes/:qid", deleteQuiz);
 
     //gets quiz
-    app.get("/api/quizzes/:qid", requireAuth, getQuiz);
+    app.get("/api/quizzes/:qid", getQuiz);
 
     //updates/edit quiz
-    app.put("/api/quizzes/:qid", requireFaculty, editQuiz)
+    app.put("/api/quizzes/:qid", editQuiz)
 
 
 
